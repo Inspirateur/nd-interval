@@ -7,6 +7,9 @@ edition = "2021"
 
 [dependencies]
 iset = "*"
+csv = "*"
+anyhow = "*"
+itertools = "*"
 
 [dev-dependencies]
 criterion = "0.5"

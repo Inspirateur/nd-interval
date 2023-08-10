@@ -1,6 +1,7 @@
-use std::{path::Path, array::from_fn, ops::Range};
+use std::{array::from_fn, ops::Range};
 use iset::IntervalMap;
-use crate::nd_interval::{NdInterval, sign_dist};
+use itertools::Itertools;
+use crate::{nd_interval::NdInterval, utils::RangeUtil};
 
 trait VecMap<K: PartialEq, V> {
     fn find_left(&self, key: &K) -> Option<&(K, V)>;
@@ -29,7 +30,7 @@ impl<const D: usize, E: Clone + Eq> NdInterval<D, E> for [IntervalMap<f32, E>; D
         .into_iter().enumerate()
         .map(|(i, p)| 
             self[i].intervals_overlap(p)
-                .map(move |range| (self[i].get(range.clone()).unwrap(), sign_dist(&range, p)))
+                .map(|range| (self[i].get(range.clone()).unwrap(), range.sign_dist(p)))
                 .collect::<Vec<_>>()
         );
         let mut values = candidates_groups.next().unwrap_or(Vec::new());
@@ -59,7 +60,14 @@ impl<const D: usize, E: Clone + Eq> NdInterval<D, E> for [IntervalMap<f32, E>; D
         Some(res)
     }
 
-    fn from_csv(path: &Path) -> Self {
-        todo!()
+    fn domain(&self) -> [Range<f32>; D] {
+        from_fn(|i| self[i].range().unwrap_or(0f32..0f32))
+    }
+
+    fn values(&self) -> Vec<&E> {
+        let Some(imap) = self.get(0) else {
+            return Vec::new();
+        };
+        imap.unsorted_values().collect_vec()
     }
 }
