@@ -5,6 +5,8 @@ pub(crate) trait Counter<E> {
     where E: PartialEq<E>;
 
     fn divide(&mut self, value: f32);
+
+    fn ordered(&mut self);
 }
 
 impl<E> Counter<E> for Vec<(E, f32)> {
@@ -22,5 +24,9 @@ impl<E> Counter<E> for Vec<(E, f32)> {
         for i in 0..self.len() {
             self[i].1 /= value;
         }
+    }
+
+    fn ordered(&mut self) {
+        self.sort_by(|(_, c1), (_, c2)| c2.partial_cmp(c1).unwrap());
     }
 }

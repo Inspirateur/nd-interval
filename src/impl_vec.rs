@@ -1,6 +1,5 @@
 use std::{ops::Range, array::from_fn};
 use itertools::Itertools;
-
 use crate::{nd_interval::NdInterval, utils::RangesUtil};
 
 

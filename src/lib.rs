@@ -4,7 +4,8 @@ mod nd_interval;
 mod impl_isets;
 mod impl_vec;
 use std::fmt::Debug;
-use nd_interval::NdInterval;
+pub use nd_interval::NdInterval;
+use crate::counter::Counter;
 
 
 pub fn print_coverage<const D: usize, E: Clone + PartialEq + Debug>(imap: impl NdInterval<D, E>, step: f32) {
@@ -16,7 +17,7 @@ pub fn print_coverage<const D: usize, E: Clone + PartialEq + Debug>(imap: impl N
     });
     // .sum() refuses to work here for some reason
     let unassigned = 1f32 - coverage.iter().map(|(_, count)| *count).fold(0., |a, b| a + b);
-    coverage.sort_by(|(_, c1), (_, c2)| c2.partial_cmp(c1).unwrap());
+    coverage.ordered();
     for (value, count) in coverage {
         println!("{:?}: {:.1}%", value, count*100.);
     }
@@ -28,11 +29,22 @@ pub fn print_coverage<const D: usize, E: Clone + PartialEq + Debug>(imap: impl N
 #[cfg(test)]
 mod tests {
     use std::{ops::Range, path::Path};
-    use crate::{nd_interval::NdInterval, print_coverage};
+    use crate::{nd_interval::NdInterval, counter::Counter, impl_isets::NdIntervalMap, print_coverage};
 
     #[test]
-    pub fn my_test() {
+    pub fn print_cov() {
         let imap: Vec<([Range<f32>; 4], String)> = Vec::from_csv(Path::new("benches/plants.csv")).unwrap();
         print_coverage(imap, 0.05);
+    }
+
+    #[test]
+    pub fn same_cov() {
+        let imap1: Vec<([Range<f32>; 4], String)> = Vec::from_csv(Path::new("benches/plants.csv")).unwrap();
+        let imap2: NdIntervalMap<4, String> = NdIntervalMap::from_csv(Path::new("benches/plants.csv")).unwrap();
+        let mut cov1 = imap1.coverage(0.1);
+        cov1.ordered();
+        let mut cov2 = imap2.coverage(0.1);
+        cov2.ordered();
+        assert_eq!(cov1, cov2);
     }
 }

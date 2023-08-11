@@ -13,3 +13,7 @@ itertools = "*"
 
 [dev-dependencies]
 criterion = "0.5"
+
+[[bench]]
+name = "vec"
+harness = false
