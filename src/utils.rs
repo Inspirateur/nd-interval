@@ -9,7 +9,7 @@ pub(crate) trait RangeUtil {
 
 impl RangeUtil for Range<f32> {
     fn sign_dist(&self, p: f32) -> f32 {
-        (p-self.start).min(self.end-p)
+        (p-self.start).min(self.end-p)/(self.end-self.start)
     }
 
     fn enlarge(&mut self, other: &Range<f32>) {
